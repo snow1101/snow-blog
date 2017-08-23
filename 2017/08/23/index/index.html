@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans,en,default">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/snow-blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/snow-blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/snow-blog/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/snow-blog/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="createStore一般项目开始的时候我们会这样写123456789const initialState = &amp;#123;&amp;#125;;// 这里是一些中间件，像log之类的const middlewares = [    thunkMiddleware,    promiseMiddleWare,    localstorageMiddware,    logger  ];const stor">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redux源码解析">
+<meta property="og:url" content="http://yoursite.com/2017/08/23/index/index.html">
+<meta property="og:site_name" content="snow&#39;s blog">
+<meta property="og:description" content="createStore一般项目开始的时候我们会这样写123456789const initialState = &amp;#123;&amp;#125;;// 这里是一些中间件，像log之类的const middlewares = [    thunkMiddleware,    promiseMiddleWare,    localstorageMiddware,    logger  ];const stor">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-23T05:59:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redux源码解析">
+<meta name="twitter:description" content="createStore一般项目开始的时候我们会这样写123456789const initialState = &amp;#123;&amp;#125;;// 这里是一些中间件，像log之类的const middlewares = [    thunkMiddleware,    promiseMiddleWare,    localstorageMiddware,    logger  ];const stor">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/snow-blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/23/index/"/>
+
+
+
+
+
+  <title>redux源码解析 | snow's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/snow-blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">snow's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/snow-blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/snow-blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/snow-blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/snow-blog/2017/08/23/index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Snow An">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/snow-blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="snow's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">redux源码解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-23T10:22:25Z">
+                2017-08-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="createStore"><a href="#createStore" class="headerlink" title="createStore"></a>createStore</h3><p>一般项目开始的时候我们会这样写<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> initialState = &#123;&#125;;</div><div class="line"><span class="comment">// 这里是一些中间件，像log之类的</span></div><div class="line"><span class="keyword">const</span> middlewares = [</div><div class="line">    thunkMiddleware,</div><div class="line">    promiseMiddleWare,</div><div class="line">    localstorageMiddware,</div><div class="line">    logger</div><div class="line">  ];</div><div class="line"><span class="keyword">const</span> store = createStore(combineReducers(&#123;home,common&#125;), initialState, applyMiddleware(...middlewares));</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<p>首先执行执行的就是combineReducers，home的示例代码如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span>(<span class="params">state = initState, action</span>) </span>&#123;</div><div class="line">  <span class="keyword">switch</span> (action.type) &#123;</div><div class="line">    <span class="keyword">case</span> <span class="string">'GET_AGENT_SUCCESS'</span>:</div><div class="line">    &#123;</div><div class="line">      <span class="keyword">const</span> agentInfo = action.payload;</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123; agentInfo &#125;);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">case</span> <span class="string">'GET_MARQUEE_SUCCESS'</span>:</div><div class="line">    &#123;</div><div class="line">      <span class="keyword">const</span> marQuee = action.payload.bizRecords;</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123; marQuee &#125;);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">default</span>:</div><div class="line">      <span class="keyword">return</span> state;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>combineReducers 通过assertReducerSanity 方法，使用createStore里面暴露的ActionTypes = {INIT: ‘@@redux/INIT’}将所有reducer初始化了一遍，并返回函数combination</p>
+<p>然后执行applyMiddleware()，此函数返回的是一个匿名函数，接收参数为createStore函数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">applyMiddleware</span>(<span class="params">...middlewares</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">createStore</span>) =&gt;</span> (reducer, preloadedState, enhancer) =&gt; &#123;</div><div class="line">    <span class="keyword">var</span> store = createStore(reducer, preloadedState, enhancer)</div><div class="line">    <span class="keyword">var</span> dispatch = store.dispatch</div><div class="line">    <span class="keyword">var</span> chain = []</div><div class="line"></div><div class="line">    <span class="keyword">var</span> middlewareAPI = &#123;</div><div class="line">      getState: store.getState,</div><div class="line">      dispatch: <span class="function">(<span class="params">action</span>) =&gt;</span> dispatch(action)</div><div class="line">    &#125;</div><div class="line">    chain = middlewares.map(<span class="function"><span class="params">middleware</span> =&gt;</span> middleware(middlewareAPI))</div><div class="line">    dispatch = compose(...chain)(store.dispatch)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">      ...store,</div><div class="line">      dispatch</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>此时终于进入了createStore这个函数了，createStore函数中有一段代码如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> enhancer !== <span class="string">'undefined'</span>) &#123;</div><div class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> enhancer !== <span class="string">'function'</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Expected the enhancer to be a function.'</span>)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> enhancer(createStore)(reducer, preloadedState)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>  因为我们传入了第三个参数enhancer，也就是我们的applyMiddleware返回的匿名函数，所以函数直接return了enhancer(createStore)(reducer, preloadedState)</p>
+<p>  分析enhancer(createStore)(reducer, preloadedState)</p>
+<p>  首先将createStore函数作为参数传入给applyMiddleware()返回的匿名函数，执行第一步enhancer(createStore)，返回的是另一个匿名函数，接受参数reducer, preloadedState, enhancer</p>
+<p>  此时执行第二步enhancer(createStore)(reducer, preloadedState)，传入的参数是reducer和preloadedState<br>  注明：  这里的reducer 是我们最开始执行的combineReducers返回的函数combination， preloadedState就是我们的 initialState = {};</p>
+<p>  在执行enhancer(createStore)(reducer, preloadedState)时，第一步就是代码  var store = createStore(reducer, preloadedState, enhancer)<br>  所以此时，代码再次进入createStore 里面，但是由于我们此次并没有传入enhancer，所以createStore顺利向下执行，初始化一些参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> currentReducer = reducer  -&gt; reducer是函数combination</div><div class="line"><span class="keyword">var</span> currentState = preloadedState -&gt; currentState是initialState = &#123;&#125;</div><div class="line"><span class="keyword">var</span> currentListeners = []</div><div class="line"><span class="keyword">var</span> nextListeners = currentListeners</div><div class="line"><span class="keyword">var</span> isDispatching = <span class="literal">false</span></div></pre></td></tr></table></figure>
+<p>  代码执行到最后遇到关键的一句话，在createStore 函数return前 执行了一次 dispatch({ type: ActionTypes.INIT })</p>
+<p>  代码进入了createStore 函数中的方法dispatch</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">  <span class="function"><span class="keyword">function</span> <span class="title">dispatch</span>(<span class="params">action</span>) </span>&#123;</div><div class="line">    <span class="comment">//如果不是对象报错</span></div><div class="line">  <span class="keyword">if</span> (!isPlainObject(action)) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</div><div class="line">      <span class="string">'Actions must be plain objects. '</span> +</div><div class="line">      <span class="string">'Use custom middleware for async actions.'</span></div><div class="line">    )</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//如果没有t对象中没有type属性报错</span></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> action.type === <span class="string">'undefined'</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(</div><div class="line">      <span class="string">'Actions may not have an undefined "type" property. '</span> +</div><div class="line">      <span class="string">'Have you misspelled a constant?'</span></div><div class="line">    )</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//如果正在dispatch 报错</span></div><div class="line">  <span class="keyword">if</span> (isDispatching) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Reducers may not dispatch actions.'</span>)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    isDispatching = <span class="literal">true</span></div><div class="line">    currentState = currentReducer(currentState, action)</div><div class="line">  &#125; <span class="keyword">finally</span> &#123;</div><div class="line">    isDispatching = <span class="literal">false</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">var</span> listeners = currentListeners = nextListeners</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; listeners.length; i++) &#123;</div><div class="line">    listeners[i]()</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> action</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在执行到try代码块里面的时候，开始执行combination函数，传入currentState即初始化的initialState和初始化的action即{ type: ActionTypes.INIT }<br>combination代码如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">combination</span>(<span class="params">state = &#123;&#125;, action</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (sanityError) &#123;</div><div class="line">      <span class="keyword">throw</span> sanityError</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</div><div class="line">      <span class="keyword">var</span> warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache)</div><div class="line">      <span class="keyword">if</span> (warningMessage) &#123;</div><div class="line">        warning(warningMessage)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> hasChanged = <span class="literal">false</span></div><div class="line">    <span class="keyword">var</span> nextState = &#123;&#125;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; finalReducerKeys.length; i++) &#123;</div><div class="line">      <span class="keyword">var</span> key = finalReducerKeys[i]</div><div class="line">      <span class="keyword">var</span> reducer = finalReducers[key]</div><div class="line">      <span class="keyword">var</span> previousStateForKey = state[key]</div><div class="line">      <span class="keyword">var</span> nextStateForKey = reducer(previousStateForKey, action)</div><div class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> nextStateForKey === <span class="string">'undefined'</span>) &#123;</div><div class="line">        <span class="keyword">var</span> errorMessage = getUndefinedStateErrorMessage(key, action)</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(errorMessage)</div><div class="line">      &#125;</div><div class="line">      nextState[key] = nextStateForKey</div><div class="line">      hasChanged = hasChanged || nextStateForKey !== previousStateForKey</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> hasChanged ? nextState : state</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>可以看到，在for循环里面，每个reducer又被执行了一遍，并将结果挂在了nextState上面，最后判断nextStateForKey 和 previousStateForKey 是否相同，一旦一个发生变化，<br>hasChanged 就会变成true 将nextState 返回，赋值给了createStore中的currentState 然后此时nextListeners 还是[]，所以直接返回了action {type: “@@redux/INIT”}</p>
+<p>此时dispatch 结束， createStore 返回了对象，并赋值给了applyMiddleware中的store；<br>{<br>    dispatch,<br>    subscribe,<br>    getState,<br>    replaceReducer,</p>
+<pre><code>[$$observable]: observable
+</code></pre><p>  }<br>代码此时进入了middlewares.map处</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">applyMiddleware</span>(<span class="params">...middlewares</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">createStore</span>) =&gt;</span> (reducer, preloadedState, enhancer) =&gt; &#123;</div><div class="line">    <span class="keyword">var</span> store = createStore(reducer, preloadedState, enhancer)</div><div class="line">    <span class="keyword">var</span> dispatch = store.dispatch</div><div class="line">    <span class="keyword">var</span> chain = []</div><div class="line"></div><div class="line">    <span class="keyword">var</span> middlewareAPI = &#123;</div><div class="line">      getState: store.getState,</div><div class="line">      dispatch: <span class="function">(<span class="params">action</span>) =&gt;</span> dispatch(action)</div><div class="line">    &#125;</div><div class="line">    chain = middlewares.map(<span class="function"><span class="params">middleware</span> =&gt;</span> middleware(middlewareAPI))</div><div class="line">    dispatch = compose(...chain)(store.dispatch)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">      ...store,</div><div class="line">      dispatch</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>middlewares.map 做的最重要的一件事情就是将createStore的getState和dispatch两个方法传入到每个middleware中<br>比如 thunkMiddleware</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createThunkMiddleware</span>(<span class="params">extraArgument</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">&#123; dispatch, getState &#125;</span>) =&gt;</span> next =&gt; <span class="function"><span class="params">action</span> =&gt;</span> &#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> action === <span class="string">'function'</span>) &#123;</div><div class="line">      <span class="keyword">return</span> action(dispatch, getState, extraArgument);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> next(action);</div><div class="line">  &#125;;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">const</span> thunk = createThunkMiddleware();</div><div class="line">thunk.withExtraArgument = createThunkMiddleware;</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> thunk;</div></pre></td></tr></table></figure>
+<p>此时middlewares.map 里面所有的此时middleware 都执行了一遍 ，传入了dispatch和getState，返回了一个匿名函数，接收一个函数作为参数， 将所有执行结果产生的集合<br>赋值给chain，接着执行compose(…chain)，compose代码如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">compose</span>(<span class="params">...funcs</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (funcs.length === <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="params">arg</span> =&gt;</span> arg</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (funcs.length === <span class="number">1</span>) &#123;</div><div class="line">    <span class="keyword">return</span> funcs[<span class="number">0</span>]</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">const</span> last = funcs[funcs.length - <span class="number">1</span>]</div><div class="line">  <span class="keyword">const</span> rest = funcs.slice(<span class="number">0</span>, <span class="number">-1</span>)</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> rest.reduceRight(<span class="function">(<span class="params">composed, f</span>) =&gt;</span> f(composed), last(...args))</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到 compose 返回了一个匿名函数，此时代码回到compose(…chain)(store.dispatch)  将store.dispatch 作为参数传入到了 compose 返回的匿名函数中<br>此时reduceRight 会逐个 执行middleware   返回了最后一个middleware执行后的结果，即一个接收action作为参数的函数 ，并赋值给了applyMiddleware 中的dispatch</p>
+<p>此时applyMiddleware 最终全部返回{…store,dispatch}，赋值给了 最开始的代码store<br>const store = createStore(combineReducers({home,common}), initialState, applyMiddleware(…middlewares));</p>
+<p>所以此时的store，有createStore方法中的<br>{<br>    subscribe,<br>    getState,<br>    replaceReducer,</p>
+<pre><code>[$$observable]: observable
+</code></pre><p>  }<br>  但是dispatch 方法已经是被此时applyMiddleware  改造后的dispatch 了，即接收action作为参数的函数</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/snow-blog/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/snow-blog/2017/08/16/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/snow-blog/images/avatar.gif"
+               alt="Snow An" />
+          <p class="site-author-name" itemprop="name">Snow An</p>
+           
+              <p class="site-description motion-element" itemprop="description">阿雪的博客, 前端开发</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/snow-blog/archives/">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#createStore"><span class="nav-number">1.</span> <span class="nav-text">createStore</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Snow An</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+    由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+  </div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">
+    主题 &mdash;
+    <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+      NexT.Mist
+    </a>
+  </div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/snow-blog/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/snow-blog/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/snow-blog/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/snow-blog/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/snow-blog/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/snow-blog/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
